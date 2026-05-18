@@ -84,7 +84,7 @@
                 display: none !important; 
             }
             
-            .col-lg-8 { 
+            .col-lg-9 { 
                 width: 100% !important; 
                 margin: 0 !important;
                 padding: 0 !important;
@@ -195,14 +195,14 @@
 </head>
 <body>
 
-<div class="container py-4">
+<div class="container-fluid py-4">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 no-print border-bottom border-secondary pb-3">
         <h2>⚡ CYBERPRINT // ONLINE DATABASE SYSTEM</h2>
         
         <div class="d-flex align-items-center mt-3 mt-md-0">
             <span id="cloudStatus" class="badge bg-secondary me-3 status-indicator">🔄 CONNECTING...</span>
             <span class="me-2 fw-bold text-white">SELECT_MONTH:</span>
-            <select id="monthSelector" class="form-select bg-dark text-warning border-warning fw-bold" style="width: 250px;" onchange="switchMonth()">
+            <select id="monthSelector" class="form-select bg-dark text-warning border-warning fw-bold" style="width: 200px;" onchange="switchMonth()">
                 <option value="01">01 | มกราคม</option>
                 <option value="02">02 | กุมภาพันธ์</option>
                 <option value="03">03 | มีนาคม</option>
@@ -227,7 +227,7 @@
     </div>
 
     <div class="row g-4">
-        <div class="col-lg-4 no-print">
+        <div class="col-lg-3 no-print">
             <div class="card cyber-card p-4">
                 <h4 id="formTitle" class="mb-3">// บันทึกข้อมูลเข้าระบบ</h4>
                 <form id="orderForm">
@@ -313,7 +313,7 @@
             </div>
         </div>
 
-        <div class="col-lg-8">
+        <div class="col-lg-9">
             <div class="card cyber-card p-4 h-100">
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 no-print">
                     <h4 id="tableTitle" class="mb-2 mb-sm-0">// รายการประจำเดือน</h4>
