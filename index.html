@@ -6,7 +6,7 @@
     <title>CYBERPRINT // ระบบบันทึกงานพิมพ์ประจำเดือน</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* --- CYBERPUNK THEME STYLE --- */
+        /* --- DIGITAL DASHBOARD STYLE (หน้าจอตอนทำงาน) --- */
         body { 
             background-color: #0d0f12; 
             color: #00f0ff; 
@@ -25,16 +25,6 @@
             border: 2px solid #00f0ff;
             box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
             border-radius: 0px;
-            position: relative;
-        }
-
-        .cyber-card::before {
-            content: '';
-            position: absolute;
-            top: 0; right: 0;
-            border-style: solid;
-            border-width: 0 15px 15px 0;
-            border-color: transparent #fcee0a transparent transparent;
         }
 
         .form-control, .form-select {
@@ -51,18 +41,15 @@
             box-shadow: 0 0 10px rgba(252, 238, 10, 0.5);
         }
 
-        /* ปุ่มสีเหลืองนีออน */
         .btn-cyber-primary {
             background-color: #fcee0a;
             color: #000;
             font-weight: bold;
             border-radius: 0px;
             border: none;
-            text-transform: uppercase;
         }
         .btn-cyber-primary:hover { background-color: #d6ca07; color: #000; }
 
-        /* ปุ่มสีฟ้าเลเซอร์ */
         .btn-cyber-info {
             background-color: #00f0ff;
             color: #000;
@@ -72,40 +59,86 @@
         }
         .btn-cyber-info:hover { background-color: #00bcd4; color: #000; }
 
-        /* สรุปยอดเงินสไตล์หน้าจอ Sci-Fi */
         .alert-cyber-total { background: #1c232b; border: 1px solid #00f0ff; color: #00f0ff; border-radius: 0px; }
         .alert-cyber-paid { background: #1c232b; border: 1px solid #39ff14; color: #39ff14; border-radius: 0px; }
         .alert-cyber-unpaid { background: #1c232b; border: 1px solid #ff0055; color: #ff0055; border-radius: 0px; }
 
-        /* ตารางสไตล์ Matrix / Cyber */
         .table-cyber { color: #fff; border-color: #2c3540; }
-        .table-cyber thead { background-color: #14181d; border-bottom: 2px solid #00f0ff; }
-        
-        /* แก้ไขตามสั่ง: ปรับหัวตารางบนเว็บให้เป็นตัวหนังสือสีขาวเด่นชัด */
-        .table-cyber th { color: #ffffff !important; font-weight: bold; text-transform: uppercase; text-shadow: 0 0 5px rgba(255,255,255,0.5); }
+        .table-cyber th { color: #ffffff !important; font-weight: bold; text-transform: uppercase; }
         
         .badge-paid { background-color: #39ff14; color: #000; font-weight: bold; border-radius: 0px; }
         .badge-unpaid { background-color: #ff0055; color: #fff; font-weight: bold; border-radius: 0px; }
 
-        /* --- PRINT STYLESHEET (A4) --- */
+        /* --- PROFESSIONAL PRINT REFORMT STYLE (หน้ารีพอร์ต A4 ตอนสั่งพิมพ์) --- */
         @media print {
-            body { background-color: #fff !important; color: #000 !important; }
-            .no-print, .btn, .form-select, .form-control { display: none !important; }
-            .col-lg-8 { width: 100% !important; }
-            .cyber-card { border: none !important; box-shadow: none !important; background: transparent !important; padding: 0 !important; }
-            .table-responsive { max-height: none !important; overflow: visible !important; }
-            
-            /* แก้ไขตามสั่ง: หน้ารีพอร์ตใช้ตัวหนังสือขนาด 18pt */
-            .table-cyber { width: 100% !important; color: #000 !important; border: 1px solid #000 !important; }
-            .table-cyber th { border: 1px solid #000 !important; background-color: #f0f0f0 !important; color: #000 !important; font-size: 18pt !important; text-shadow: none !important; }
-            .table-cyber td { border: 1px solid #000 !important; color: #000 !important; font-size: 18pt !important; }
-            
-            .alert-cyber-total, .alert-cyber-paid, .alert-cyber-unpaid { 
-                border: 1px solid #000 !important; color: #000 !important; background: transparent !important; font-size: 18pt !important;
+            /* ล้างความเป็นไซเบอร์พังค์ออกทั้งหมด ให้เป็นกระดาษขาวตัวหนังสือดำ */
+            html, body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                font-family: 'Sarabun', 'Segoe UI', sans-serif !important;
             }
-            .badge-paid, .badge-unpaid { background: transparent !important; color: #000 !important; font-weight: bold; font-size: 18pt !important; }
-            .d-print-block.mt-4 .fs-5 { font-size: 18pt !important; }
-            @page { size: A4 portrait; margin: 15mm 10mm 15mm 10mm; }
+            
+            /* ซ่อนส่วนที่ไม่เกี่ยวข้องกับการรายงาน */
+            .no-print, .btn, .form-select, .form-control, .alert, .badge, .alert-container { 
+                display: none !important; 
+            }
+            
+            /* ขยายตารางให้เต็มหน้ากระดาษ */
+            .col-lg-8 { 
+                width: 100% !important; 
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .cyber-card { 
+                border: none !important; 
+                box-shadow: none !important; 
+                background: transparent !important; 
+                padding: 0 !important; 
+            }
+            
+            .table-responsive { 
+                max-height: none !important; 
+                overflow: visible !important; 
+            }
+
+            /* จัดหน้ากระดาษ A4 แนวตั้ง */
+            @page { 
+                size: A4 portrait; 
+                margin: 20mm 15mm 20mm 15mm; 
+            }
+
+            /* จัดการตารางรีพอร์ตระดับมืออาชีพ */
+            .table-cyber { 
+                width: 100% !important; 
+                color: #000000 !important; 
+                border-collapse: collapse !important;
+                margin-top: 10px !important;
+            }
+            
+            /* หัวตารางขนาด 18pt ตัวหนา พื้นหลังเทาอ่อน */
+            .table-cyber th { 
+                border: 1px solid #666666 !important; 
+                background-color: #eaeaea !important; 
+                color: #000000 !important; 
+                font-size: 18pt !important; 
+                font-weight: bold !important;
+                padding: 10px 6px !important;
+                text-shadow: none !important;
+            }
+            
+            /* เนื้อหาในตารางขนาด 18pt */
+            .table-cyber td { 
+                border: 1px solid #666666 !important; 
+                color: #000000 !important; 
+                font-size: 18pt !important; 
+                padding: 10px 6px !important;
+                background: transparent !important;
+            }
+
+            /* แปลงสถานะข้อความตอนปริ้นแทนการใช้ปุ่มสี */
+            .print-status-paid::after { content: "จ่ายแล้ว"; }
+            .print-status-unpaid::after { content: "ยังไม่จ่าย"; }
         }
     </style>
 </head>
@@ -134,11 +167,11 @@
         </div>
     </div>
     
-    <div class="d-none d-print-block text-center mb-4">
-        <h2 style="color:#000; text-shadow:none; font-size: 24pt;">รายงานสรุปบันทึกงานพิมพ์และป้ายโฆษณา</h2>
-        <h4 style="color:#000; text-shadow:none; font-size: 20pt;">ประจำเดือน: <span id="printMonthName"></span></h4>
-        <p style="font-size: 14pt;">วันที่พิมพ์รายงาน: <span id="printDate"></span></p>
-        <hr style="border: 1px solid #000;">
+    <div class="d-none d-print-block text-center mb-5">
+        <h2 style="color:#000000; font-size: 26pt; font-weight: bold; margin-bottom: 5px;">รายงานสรุปบันทึกงานพิมพ์และป้ายโฆษณา</h2>
+        <h4 style="color:#000000; font-size: 20pt; font-weight: normal; margin-bottom: 25px;">ประจำเดือน: <span id="printMonthName" style="font-weight: bold;"></span></h4>
+        <div style="text-align: right; font-size: 14pt; color: #444; margin-bottom: 5px;">วันที่พิมพ์รายงาน: <span id="printDate"></span></div>
+        <hr style="border: 1px solid #000000; margin-top: 0; opacity: 1;">
     </div>
 
     <div class="row g-4">
@@ -187,7 +220,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label text-white">暗号 สถานะการชำระเงิน</label>
+                        <label class="form-label text-white">สถานะการชำระเงิน</label>
                         <select id="paymentStatus" class="form-select" required>
                             <option value="ยังไม่จ่าย">❌ ยังไม่จ่าย (UNPAID)</option>
                             <option value="จ่ายแล้ว">✅ จ่ายแล้ว (PAID)</option>
@@ -214,7 +247,7 @@
                     </div>
                 </div>
                 
-                <div class="row g-2 mb-3">
+                <div class="row g-2 mb-3 alert-container">
                     <div class="col-md-4">
                         <div class="alert alert-cyber-total py-2 mb-0 text-center">
                             <strong>TOTAL_NET (ยอดรวม):</strong> <br><span id="totalRevenue" class="fw-bold">0</span> บ.
@@ -252,11 +285,15 @@
                     </table>
                 </div>
 
-                <div class="d-none d-print-block mt-4 border-top border-dark pt-3">
-                    <div class="row text-end fw-bold fs-5">
-                        <div class="col-12">ยอดรวมสุทธิประจำเดือน: <span id="printTotalRevenue">0</span> บาท</div>
-                        <div class="col-12 text-success">ชำระเงินเรียบร้อยแล้ว: <span id="printTotalPaid">0</span> บาท</div>
-                        <div class="col-12 text-danger">ยอดค้างชำระคงเหลือ: <span id="printTotalUnpaid">0</span> บาท</div>
+                <div class="d-none d-print-block mt-4" style="text-align: right; font-size: 18pt; line-height: 2;">
+                    <div style="border-top: 1px solid #000000; padding-top: 15px;">
+                        <span>ยอดรวมสุทธิประจำเดือน: </span><span id="printTotalRevenue" style="font-weight: bold;">0</span><span> บาท</span>
+                    </div>
+                    <div>
+                        <span style="color: #000000;">ชำระเงินเรียบร้อยแล้ว: </span><span id="printTotalPaid" style="font-weight: bold;">0</span><span> บาท</span>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <span style="color: #000000;">ยอดค้างชำระคงเหลือ: </span><span id="printTotalUnpaid" style="font-weight: bold; text-decoration: underline;">0</span><span> บาท</span>
                     </div>
                 </div>
 
@@ -306,23 +343,27 @@
             totalRevenue += totalPrice;
 
             let statusMarkup = '';
+            let printStatusClass = '';
             if (order.payment === 'จ่ายแล้ว') {
                 totalPaid += totalPrice;
-                statusMarkup = '<span class="badge badge-paid">PAID</span>';
+                statusMarkup = '<span class="badge badge-paid no-print">PAID</span>';
+                printStatusClass = 'print-status-paid';
             } else {
                 totalUnpaid += totalPrice;
                 statusMarkup = '<span class="badge badge-unpaid">UNPAID</span>';
+                printStatusClass = 'print-status-unpaid';
             }
 
             const row = `
                 <tr>
                     <td>${formatDate(order.date)}</td>
-                    <td><span class="badge bg-dark border border-info text-info">${order.material}</span></td>
+                    <td><span class="badge bg-dark border border-info text-info no-print">${order.material}</span><span class="d-none d-print-inline">${order.material}</span></td>
                     <td class="text-start">${order.jobName}</td>
                     <td>${order.size}</td>
                     <td>${order.quantity}</td>
-                    <td class="fw-bold text-warning">${totalPrice.toLocaleString()} บ.</td>
-                    <td>${statusMarkup}</td>
+                    <td class="fw-bold text-warning d-print-none">${totalPrice.toLocaleString()} บ.</td>
+                    <td class="fw-bold d-none d-print-table-cell" style="color:#000000 !important;">${totalPrice.toLocaleString()} บ.</td>
+                    <td>${statusMarkup}<span class="d-none d-print-inline ${printStatusClass}"></span></td>
                     <td class="text-muted small no-print">${order.note || '-'}</td>
                     <td class="no-print">
                         <button class="btn btn-sm btn-outline-warning py-0 me-1" style="font-size:11px;" onclick="togglePayment(${index})">สลับสถานะ</button>
