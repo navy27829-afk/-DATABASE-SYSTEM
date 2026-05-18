@@ -116,24 +116,35 @@
                 margin-top: 10px !important;
             }
             
-            /* หัวตารางขนาด 18pt ตัวหนา พื้นหลังเทาอ่อน */
+            /* หัวตารางปรับขนาดเป็น 14pt ตัวหนา พื้นหลังเทาอ่อน */
             .table-cyber th { 
                 border: 1px solid #666666 !important; 
                 background-color: #eaeaea !important; 
                 color: #000000 !important; 
-                font-size: 18pt !important; 
+                font-size: 14pt !important; 
                 font-weight: bold !important;
-                padding: 10px 6px !important;
+                padding: 8px 4px !important;
                 text-shadow: none !important;
             }
             
-            /* เนื้อหาในตารางขนาด 18pt */
+            /* เนื้อหาในตารางทั้งหมดปรับลงมาเหลือ 14pt */
             .table-cyber td { 
                 border: 1px solid #666666 !important; 
                 color: #000000 !important; 
-                font-size: 18pt !important; 
-                padding: 10px 6px !important;
+                font-size: 14pt !important; 
+                padding: 8px 4px !important;
                 background: transparent !important;
+            }
+
+            /* ตัวหนังสือส่วนหัวและสรุปยอด ปรับให้อยู่ในเกณฑ์ 14pt-18pt ให้สมดุลกัน */
+            .d-print-block h2 { font-size: 18pt !important; font-weight: bold; }
+            .d-print-block h4 { font-size: 14pt !important; }
+            .d-print-block div { font-size: 12pt !important; }
+
+            /* สรุปยอดเงินท้ายรายงานปรับเป็น 14pt */
+            .print-summary-area {
+                font-size: 14pt !important;
+                line-height: 1.8;
             }
 
             /* แปลงสถานะข้อความตอนปริ้นแทนการใช้ปุ่มสี */
@@ -167,10 +178,10 @@
         </div>
     </div>
     
-    <div class="d-none d-print-block text-center mb-5">
-        <h2 style="color:#000000; font-size: 26pt; font-weight: bold; margin-bottom: 5px;">รายงานสรุปบันทึกงานพิมพ์และป้ายโฆษณา</h2>
-        <h4 style="color:#000000; font-size: 20pt; font-weight: normal; margin-bottom: 25px;">ประจำเดือน: <span id="printMonthName" style="font-weight: bold;"></span></h4>
-        <div style="text-align: right; font-size: 14pt; color: #444; margin-bottom: 5px;">วันที่พิมพ์รายงาน: <span id="printDate"></span></div>
+    <div class="d-none d-print-block text-center mb-4">
+        <h2 style="color:#000000; font-weight: bold; margin-bottom: 5px;">รายงานสรุปบันทึกงานพิมพ์และป้ายโฆษณา</h2>
+        <h4 style="color:#000000; font-weight: normal; margin-bottom: 15px;">ประจำเดือน: <span id="printMonthName" style="font-weight: bold;"></span></h4>
+        <div style="text-align: right; color: #444; margin-bottom: 5px;">วันที่พิมพ์รายงาน: <span id="printDate"></span></div>
         <hr style="border: 1px solid #000000; margin-top: 0; opacity: 1;">
     </div>
 
@@ -285,15 +296,15 @@
                     </table>
                 </div>
 
-                <div class="d-none d-print-block mt-4" style="text-align: right; font-size: 18pt; line-height: 2;">
-                    <div style="border-top: 1px solid #000000; padding-top: 15px;">
+                <div class="d-none d-print-block mt-3 print-summary-area" style="text-align: right;">
+                    <div style="border-top: 1px solid #000000; padding-top: 10px;">
                         <span>ยอดรวมสุทธิประจำเดือน: </span><span id="printTotalRevenue" style="font-weight: bold;">0</span><span> บาท</span>
                     </div>
                     <div>
-                        <span style="color: #000000;">ชำระเงินเรียบร้อยแล้ว: </span><span id="printTotalPaid" style="font-weight: bold;">0</span><span> บาท</span>
+                        <span>ชำระเงินเรียบร้อยแล้ว: </span><span id="printTotalPaid" style="font-weight: bold;">0</span><span> บาท</span>
                     </div>
-                    <div style="margin-bottom: 15px;">
-                        <span style="color: #000000;">ยอดค้างชำระคงเหลือ: </span><span id="printTotalUnpaid" style="font-weight: bold; text-decoration: underline;">0</span><span> บาท</span>
+                    <div>
+                        <span>ยอดค้างชำระคงเหลือ: </span><span id="printTotalUnpaid" style="font-weight: bold; text-decoration: underline;">0</span><span> บาท</span>
                     </div>
                 </div>
 
