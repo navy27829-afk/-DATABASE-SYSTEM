@@ -343,7 +343,13 @@
         loadMonthData();
     }
 
-    document.getElementById('orderDate').valueAsDate = new Date();
+    // ฟังก์ชันช่วยตั้งค่าวันที่เริ่มต้นให้ตรงตามเดือนที่เลือก
+    function setDefaultDateForMonth() {
+        const currentYear = new Date().getFullYear();
+        document.getElementById('orderDate').value = `${currentYear}-${currentMonth}-01`;
+    }
+
+    setDefaultDateForMonth();
 
     function renderTable() {
         const tableBody = document.getElementById('orderTableBody');
@@ -402,6 +408,7 @@
     }
 
     function formatDate(dateString) {
+        if (!dateString) return '-';
         const d = new Date(dateString);
         return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear() + 543}`.htmlSpecialChars();
     }
@@ -414,9 +421,19 @@
         e.preventDefault();
 
         const index = parseInt(document.getElementById('editIndex').value);
+        const selectedDate = document.getElementById('orderDate').value;
+
+        // ดึงค่าเดือนของข้อมูลที่เลือกพิมพ์มาตรวจสอบ ป้องกันพนักงานคีย์ผิดเดือน
+        const orderMonthStr = selectedDate.split('-')[1];
+        if (orderMonthStr !== currentMonth) {
+            alert(`⚠️ แจ้งเตือน: วันที่ทำรายการไม่ใช่เดือนเดียวกับฐานข้อมูลระบบที่เลือกอยู่ขณะนี้ ระบบจะเปลี่ยนไปบันทึกข้อมูลในฐานข้อมูลเดือนที่ระบุโดยอัตโนมัติ`);
+            currentMonth = orderMonthStr;
+            document.getElementById('monthSelector').value = currentMonth;
+            orders = JSON.parse(localStorage.getItem(`vinyl_orders_${currentMonth}`)) || [];
+        }
 
         const orderData = {
-            date: document.getElementById('orderDate').value,
+            date: selectedDate,
             material: document.getElementById('materialType').value,
             jobName: document.getElementById('jobName').value,
             size: document.getElementById('size').value,
@@ -427,19 +444,15 @@
         };
 
         if (index === -1) {
-            // โหมดเพิ่มรายการใหม่
             orders.push(orderData);
         } else {
-            // โหมดแก้ไขรายการเดิม
             orders[index] = orderData;
         }
 
         localStorage.setItem(`vinyl_orders_${currentMonth}`, JSON.stringify(orders));
-        renderTable();
-        resetForm();
+        loadMonthData();
     });
 
-    // ฟังก์ชันดึงข้อมูลมาแก้ไข
     function editOrder(index) {
         const order = orders[index];
         document.getElementById('editIndex').value = index;
@@ -452,21 +465,18 @@
         document.getElementById('paymentStatus').value = order.payment;
         document.getElementById('note').value = order.note;
 
-        // เปลี่ยนหน้าตาฟอร์มให้เป็นโหมดแก้ไข
         document.getElementById('formTitle').innerText = `🛠️ แก้ไขรายการที่ ${index + 1}`;
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.innerText = "⚡ UPDATE_DATA (อัปเดตข้อมูล)";
         submitBtn.className = "btn btn-cyber-info flex-grow-1 py-2 mt-2";
         document.getElementById('cancelEditBtn').classList.remove('d-none');
         
-        // เลื่อนหน้าจอขึ้นไปที่ฟอร์ม (กรณีเปิดในมือถือ)
         document.getElementById('orderForm').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // ฟังก์ชันรีเซ็ตฟอร์มกลับเป็นปกติ
     function resetForm() {
         document.getElementById('editIndex').value = "-1";
-        document.getElementById('orderDate').valueAsDate = new Date();
+        setDefaultDateForMonth(); // แก้ไขบั๊ก: ให้คงเซ็ตตามเดือนปัจจุบันที่เลือกดูอยู่
         document.getElementById('materialType').value = "";
         document.getElementById('jobName').value = "";
         document.getElementById('size').value = "";
@@ -479,7 +489,7 @@
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.innerText = "📥 EXECUTE_SAVE (บันทึก)";
         submitBtn.className = "btn btn-cyber-primary flex-grow-1 py-2 mt-2";
-        document.getElementById('cancelEditBtn').add('d-none');
+        document.getElementById('cancelEditBtn').classList.add('d-none'); // แก้ไขบั๊ก syntax error .add
     }
 
     function togglePayment(index) {
