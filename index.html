@@ -410,6 +410,56 @@
                     </div>
                 </div>
 
+                <!-- ===== ส่วนบันทึกต้นทุน ===== -->
+                <div class="mt-4 no-print">
+                    <h4 class="mb-3">// บันทึกต้นทุนวัสดุ</h4>
+
+                    <!-- ฟอร์มเพิ่มต้นทุน -->
+                    <div class="d-flex gap-2 mb-3">
+                        <input type="text" id="costName" class="form-control" placeholder="รายการที่ซื้อ เช่น ไวนิล 50 เมตร">
+                        <input type="number" id="costPrice" class="form-control" placeholder="ราคา (บาท)" style="max-width: 150px;">
+                        <button class="btn btn-cyber-primary px-3" onclick="addCost()" style="white-space: nowrap;">➕ เพิ่ม</button>
+                    </div>
+
+                    <!-- ตารางต้นทุน -->
+                    <div class="table-responsive" style="max-height: 220px; overflow-y: auto;">
+                        <table class="table table-dark table-bordered align-middle text-center table-cyber" style="font-size: 12px;">
+                            <thead class="sticky-header">
+                                <tr>
+                                    <th>รายการ</th>
+                                    <th style="width: 120px;">ราคา (บาท)</th>
+                                    <th style="width: 60px;" class="no-print">ลบ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="costTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- สรุปกำไร -->
+                    <div class="row g-2 mt-2">
+                        <div class="col-md-4">
+                            <div class="alert alert-cyber-unpaid py-2 mb-0 text-center">
+                                <strong>🛒 ต้นทุนรวม:</strong><br>
+                                <span id="totalCost" class="fw-bold">0</span> บ.
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-cyber-total py-2 mb-0 text-center">
+                                <strong>💰 รายได้รวม:</strong><br>
+                                <span id="profitRevenue" class="fw-bold">0</span> บ.
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="alert alert-cyber-paid py-2 mb-0 text-center">
+                                <strong>✅ กำไรสุทธิ:</strong><br>
+                                <span id="totalProfit" class="fw-bold">0</span> บ.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ===== จบส่วนต้นทุน ===== -->
+
             </div>
         </div>
     </div>
@@ -540,6 +590,7 @@
         dbOrders = data || {};
         
         renderTable();
+        loadCosts();
     }
 
     function switchMonth() {
@@ -623,7 +674,76 @@
         document.getElementById('printTotalRevenue').innerText = totalRevenue.toLocaleString();
         document.getElementById('printTotalPaid').innerText = totalPaid.toLocaleString();
         document.getElementById('printTotalUnpaid').innerText = totalUnpaid.toLocaleString();
+
+        // อัปเดตกำไรด้วย
+        updateProfit(totalRevenue);
     }
+
+    // ===== ระบบต้นทุน =====
+    let dbCosts = {};
+
+    async function loadCosts() {
+        const data = await apiRequest(`/costs/${currentMonth}`);
+        dbCosts = data || {};
+        renderCostTable();
+    }
+
+    async function addCost() {
+        const name = document.getElementById('costName').value.trim();
+        const price = parseFloat(document.getElementById('costPrice').value);
+        if (!name || isNaN(price) || price <= 0) {
+            alert('กรุณากรอกรายการและราคาให้ครบครับ');
+            return;
+        }
+        await apiRequest(`/costs/${currentMonth}`, 'POST', { name, price });
+        document.getElementById('costName').value = '';
+        document.getElementById('costPrice').value = '';
+        loadCosts();
+    }
+
+    async function deleteCost(key) {
+        if (confirm('ลบรายการต้นทุนนี้?')) {
+            await apiRequest(`/costs/${currentMonth}/${key}`, 'DELETE');
+            loadCosts();
+        }
+    }
+
+    function renderCostTable() {
+        const tbody = document.getElementById('costTableBody');
+        tbody.innerHTML = '';
+        let totalCost = 0;
+
+        Object.keys(dbCosts).forEach(key => {
+            const cost = dbCosts[key];
+            totalCost += cost.price;
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td class="text-start text-white">${cost.name}</td>
+                    <td class="fw-bold text-danger">${cost.price.toLocaleString()} บ.</td>
+                    <td class="no-print">
+                        <button class="btn btn-sm btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteCost('${key}')">ลบ</button>
+                    </td>
+                </tr>
+            `);
+        });
+
+        document.getElementById('totalCost').innerText = totalCost.toLocaleString();
+
+        // คำนวณกำไร
+        const revenue = parseFloat(document.getElementById('totalRevenue').innerText.replace(/,/g, '')) || 0;
+        updateProfit(revenue, totalCost);
+    }
+
+    function updateProfit(revenue = 0, cost = null) {
+        if (cost === null) {
+            cost = parseFloat(document.getElementById('totalCost').innerText.replace(/,/g, '')) || 0;
+        }
+        const profit = revenue - cost;
+        document.getElementById('profitRevenue').innerText = revenue.toLocaleString();
+        document.getElementById('totalProfit').innerText = profit.toLocaleString();
+        document.getElementById('totalProfit').style.color = profit >= 0 ? '#39ff14' : '#ff0055';
+    }
+    // ===== จบระบบต้นทุน =====
 
     function formatDate(dateString) {
         if (!dateString) return '-';
