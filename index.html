@@ -282,6 +282,25 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label text-white">วิธีชำระเงิน</label>
+                        <select id="paymentMethod" class="form-select">
+                            <option value="">-- ไม่ระบุ --</option>
+                            <option value="เงินสด">💵 เงินสด</option>
+                            <option value="เงินโอน">🏦 เงินโอน</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-white">แนบสลิปการโอน</label>
+                        <input type="file" id="slipFile" class="form-control" accept="image/*">
+                        <div id="slipPreview" class="mt-2 d-none">
+                            <img id="slipPreviewImg" src="" style="max-width:100%; max-height:120px; border:1px solid #00f0ff;" />
+                            <button type="button" class="btn btn-sm btn-outline-danger mt-1 d-block" onclick="clearSlip()">🗑️ ลบสลิป</button>
+                        </div>
+                        <small id="slipUploadStatus" class="text-warning"></small>
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label text-white">หมายเหตุ</label>
                         <input type="text" id="note" class="form-control" placeholder="รายละเอียดเพิ่มเติม...">
                     </div>
@@ -333,6 +352,8 @@
                                 <th>จำนวน</th>
                                 <th>รวมเงิน</th>
                                 <th>สถานะ</th>
+                                <th>วิธีจ่าย</th>
+                                <th class="no-print">สลิป</th>
                                 <th class="no-print">หมายเหตุ</th>
                                 <th class="no-print">คำสั่ง</th>
                             </tr>
@@ -362,6 +383,7 @@
 <script>
     // ⚠️ นำ URL จากช่อง Realtime Database ที่ก๊อปปี้มาจาก Firebase มาวางทับตรงนี้แทนคำว่า "YOUR_FIREBASE_DATABASE_URL" ครับ
     const FIREBASE_URL = "https://cyberprin-4831f-default-rtdb.asia-southeast1.firebasedatabase.app"; 
+    const IMGBB_API_KEY = "e014005c2dd945b8777d5541f7e56fda";
 
     const monthNamesNames = [
         "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
@@ -398,6 +420,52 @@
         } else {
             status.innerText = "🔴 OFFLINE_ERROR";
             status.className = "badge bg-danger me-3 status-indicator";
+        }
+    }
+
+    let currentSlipUrl = '';
+
+    function clearSlip() {
+        document.getElementById('slipFile').value = '';
+        document.getElementById('slipPreview').classList.add('d-none');
+        document.getElementById('slipPreviewImg').src = '';
+        document.getElementById('slipUploadStatus').innerText = '';
+        currentSlipUrl = '';
+    }
+
+    document.getElementById('slipFile').addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('slipPreviewImg').src = e.target.result;
+            document.getElementById('slipPreview').classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+        currentSlipUrl = '';
+    });
+
+    async function uploadSlipToImgBB(file) {
+        const statusEl = document.getElementById('slipUploadStatus');
+        statusEl.innerText = '⏳ กำลังอัพโหลดสลิป...';
+        const formData = new FormData();
+        formData.append('image', file);
+        try {
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                statusEl.innerText = '✅ อัพโหลดสลิปสำเร็จ';
+                return data.data.url;
+            } else {
+                statusEl.innerText = '❌ อัพโหลดสลิปไม่สำเร็จ';
+                return '';
+            }
+        } catch(e) {
+            statusEl.innerText = '❌ เกิดข้อผิดพลาด';
+            return '';
         }
     }
 
@@ -450,6 +518,19 @@
                 printStatusClass = 'print-status-unpaid';
             }
 
+            let methodMarkup = '';
+            if (order.paymentMethod === 'เงินสด') {
+                methodMarkup = '<span class="badge bg-warning text-dark no-print">💵 เงินสด</span><span class="d-none d-print-inline">เงินสด</span>';
+            } else if (order.paymentMethod === 'เงินโอน') {
+                methodMarkup = '<span class="badge bg-info text-dark no-print">🏦 เงินโอน</span><span class="d-none d-print-inline">เงินโอน</span>';
+            } else {
+                methodMarkup = '<span class="text-muted no-print">-</span><span class="d-none d-print-inline">-</span>';
+            }
+
+            const slipMarkup = order.slipUrl
+                ? `<a href="${order.slipUrl}" target="_blank" class="btn btn-sm btn-outline-success py-0 px-1 no-print" style="font-size:11px;">🖼️ ดูสลิป</a>`
+                : '<span class="text-muted no-print">-</span>';
+
             const row = `
                 <tr>
                     <td>${formatDate(order.date)}</td>
@@ -460,6 +541,8 @@
                     <td class="fw-bold text-warning d-print-none">${totalPrice.toLocaleString()} บ.</td>
                     <td class="fw-bold d-none d-print-table-cell" style="color:#000000 !important;">${totalPrice.toLocaleString()} บ.</td>
                     <td>${statusMarkup}<span class="d-none d-print-inline ${printStatusClass}"></span></td>
+                    <td>${methodMarkup}</td>
+                    <td class="no-print">${slipMarkup}</td>
                     <td class="text-white small no-print">${order.note || '-'}</td>
                     <td class="no-print">
                         <div class="d-flex gap-1 justify-content-center">
@@ -499,6 +582,13 @@
         const selectedDate = document.getElementById('orderDate').value;
         const orderMonthStr = selectedDate.split('-')[1];
 
+        // อัพโหลดสลิปถ้ามีไฟล์ใหม่
+        const slipFile = document.getElementById('slipFile').files[0];
+        let slipUrl = currentSlipUrl;
+        if (slipFile) {
+            slipUrl = await uploadSlipToImgBB(slipFile);
+        }
+
         const orderData = {
             date: selectedDate,
             material: document.getElementById('materialType').value,
@@ -507,6 +597,8 @@
             quantity: parseInt(document.getElementById('quantity').value),
             unitPrice: parseFloat(document.getElementById('unitPrice').value),
             payment: document.getElementById('paymentStatus').value,
+            paymentMethod: document.getElementById('paymentMethod').value,
+            slipUrl: slipUrl || '',
             note: document.getElementById('note').value
         };
 
@@ -539,7 +631,18 @@
         document.getElementById('quantity').value = order.quantity;
         document.getElementById('unitPrice').value = order.unitPrice;
         document.getElementById('paymentStatus').value = order.payment;
+        document.getElementById('paymentMethod').value = order.paymentMethod || '';
         document.getElementById('note').value = order.note;
+
+        // โหลดสลิปเดิม
+        currentSlipUrl = order.slipUrl || '';
+        if (order.slipUrl) {
+            document.getElementById('slipPreviewImg').src = order.slipUrl;
+            document.getElementById('slipPreview').classList.remove('d-none');
+            document.getElementById('slipUploadStatus').innerText = '✅ มีสลิปอยู่แล้ว';
+        } else {
+            clearSlip();
+        }
 
         document.getElementById('formTitle').innerText = `🛠️ กำลังแก้ไขรายการออนไลน์`;
         const submitBtn = document.getElementById('submitBtn');
@@ -559,7 +662,9 @@
         document.getElementById('quantity').value = "1";
         document.getElementById('unitPrice').value = "";
         document.getElementById('paymentStatus').value = "ยังไม่จ่าย";
+        document.getElementById('paymentMethod').value = "";
         document.getElementById('note').value = "";
+        clearSlip();
 
         document.getElementById('formTitle').innerText = "// บันทึกข้อมูลเข้าระบบ";
         const submitBtn = document.getElementById('submitBtn');
