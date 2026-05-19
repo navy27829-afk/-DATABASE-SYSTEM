@@ -261,9 +261,9 @@
         <hr style="border: 1px solid #000000; margin-top: 0; opacity: 1;">
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-3 no-print">
-            <div class="card cyber-card p-4">
+    <div class="row g-4 px-2">
+        <div class="col-lg-2 no-print">
+            <div class="card cyber-card p-3 ms-2">
                 <h4 id="formTitle" class="mb-3">// บันทึกข้อมูลเข้าระบบ</h4>
                 <form id="orderForm">
                     <input type="hidden" id="editKey" value="">
@@ -348,7 +348,7 @@
             </div>
         </div>
 
-        <div class="col-lg-9">
+        <div class="col-lg-9 me-2">
             <div class="card cyber-card p-4 h-100">
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 no-print">
                     <h4 id="tableTitle" class="mb-2 mb-sm-0">// รายการประจำเดือน</h4>
@@ -407,14 +407,15 @@
                                 <thead>
                                     <tr>
                                         <th style="border: 1px solid #666; padding: 4px 8px; background: #eaeaea;">รายการ</th>
-                                        <th style="border: 1px solid #666; padding: 4px 8px; background: #eaeaea; width: 60px; text-align:center;">จำนวน</th>
-                                        <th style="border: 1px solid #666; padding: 4px 8px; background: #eaeaea; width: 80px; text-align:right;">ราคา</th>
+                                        <th style="border: 1px solid #666; padding: 4px 8px; background: #eaeaea; width: 50px; text-align:center;">จำนวน</th>
+                                        <th style="border: 1px solid #666; padding: 4px 8px; background: #eaeaea; width: 80px; text-align:right;">ราคา/หน่วย</th>
+                                        <th style="border: 1px solid #666; padding: 4px 8px; background: #eaeaea; width: 80px; text-align:right;">รวม</th>
                                     </tr>
                                 </thead>
                                 <tbody id="printCostTableBody"></tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="2" style="border: 1px solid #666; padding: 4px 8px; font-weight: bold; text-align: right;">ต้นทุนรวม:</td>
+                                        <td colspan="3" style="border: 1px solid #666; padding: 4px 8px; font-weight: bold; text-align: right;">ต้นทุนรวม:</td>
                                         <td style="border: 1px solid #666; padding: 4px 8px; font-weight: bold; text-align: right;"><span id="printTotalCost">0</span> บาท</td>
                                     </tr>
                                 </tfoot>
@@ -453,11 +454,15 @@
                         </div>
                         <div class="col-auto">
                             <label class="form-label text-white mb-1" style="font-size:12px;">จำนวน</label>
-                            <input type="number" id="costQty" class="form-control" placeholder="จำนวน" style="width: 90px;" min="1" value="1">
+                            <input type="number" id="costQty" class="form-control" placeholder="จำนวน" style="width: 80px;" min="1" value="1" oninput="calcCostTotal()">
                         </div>
                         <div class="col-auto">
-                            <label class="form-label text-white mb-1" style="font-size:12px;">ราคา (บาท)</label>
-                            <input type="number" id="costPrice" class="form-control" placeholder="บาท" style="width: 120px;">
+                            <label class="form-label text-white mb-1" style="font-size:12px;">ราคา/หน่วย</label>
+                            <input type="number" id="costUnitPrice" class="form-control" placeholder="บาท" style="width: 100px;" oninput="calcCostTotal()">
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-label text-white mb-1" style="font-size:12px;">รวม (บาท)</label>
+                            <input type="number" id="costPrice" class="form-control" placeholder="คำนวณอัตโนมัติ" style="width: 120px;" readonly>
                         </div>
                         <div class="col-auto">
                             <button class="btn btn-cyber-primary px-3" onclick="addCost()" style="white-space: nowrap;">➕ เพิ่ม</button>
@@ -470,8 +475,9 @@
                             <thead class="sticky-header">
                                 <tr>
                                     <th>รายการ</th>
-                                    <th style="width: 80px;">จำนวน</th>
-                                    <th style="width: 120px;">ราคา (บาท)</th>
+                                    <th style="width: 70px;">จำนวน</th>
+                                    <th style="width: 110px;">ราคา/หน่วย</th>
+                                    <th style="width: 110px;">รวม (บาท)</th>
                                     <th style="width: 60px;" class="no-print">ลบ</th>
                                 </tr>
                             </thead>
@@ -732,17 +738,25 @@
         renderCostTable();
     }
 
+    function calcCostTotal() {
+        const qty = parseFloat(document.getElementById('costQty').value) || 0;
+        const unitPrice = parseFloat(document.getElementById('costUnitPrice').value) || 0;
+        document.getElementById('costPrice').value = qty && unitPrice ? (qty * unitPrice).toFixed(0) : '';
+    }
+
     async function addCost() {
         const name = document.getElementById('costName').value.trim();
         const qty = parseInt(document.getElementById('costQty').value) || 1;
+        const unitPrice = parseFloat(document.getElementById('costUnitPrice').value) || 0;
         const price = parseFloat(document.getElementById('costPrice').value);
         if (!name || isNaN(price) || price <= 0) {
             alert('กรุณากรอกรายการและราคาให้ครบครับ');
             return;
         }
-        await apiRequest(`/costs/${currentMonth}`, 'POST', { name, qty, price });
+        await apiRequest(`/costs/${currentMonth}`, 'POST', { name, qty, unitPrice, price });
         document.getElementById('costName').value = '';
         document.getElementById('costQty').value = '1';
+        document.getElementById('costUnitPrice').value = '';
         document.getElementById('costPrice').value = '';
         loadCosts();
     }
@@ -764,13 +778,14 @@
         Object.keys(dbCosts).forEach(key => {
             const cost = dbCosts[key];
             const qty = cost.qty || 1;
+            const unitPrice = cost.unitPrice || cost.price;
             totalCost += cost.price;
 
-            // หน้าจอปกติ
             tbody.insertAdjacentHTML('beforeend', `
                 <tr>
                     <td class="text-start text-white">${cost.name}</td>
                     <td class="text-white">${qty}</td>
+                    <td class="text-white">${unitPrice.toLocaleString()} บ.</td>
                     <td class="fw-bold text-danger">${cost.price.toLocaleString()} บ.</td>
                     <td class="no-print">
                         <button class="btn btn-sm btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteCost('${key}')">ลบ</button>
@@ -778,11 +793,11 @@
                 </tr>
             `);
 
-            // หน้า print
             printTbody.insertAdjacentHTML('beforeend', `
                 <tr>
                     <td style="border: 1px solid #666; padding: 4px 8px;">${cost.name}</td>
                     <td style="border: 1px solid #666; padding: 4px 8px; text-align:center;">${qty}</td>
+                    <td style="border: 1px solid #666; padding: 4px 8px; text-align:right;">${unitPrice.toLocaleString()} บาท</td>
                     <td style="border: 1px solid #666; padding: 4px 8px; text-align:right;">${cost.price.toLocaleString()} บาท</td>
                 </tr>
             `);
