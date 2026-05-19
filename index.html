@@ -377,7 +377,7 @@
                 </div>
 
                 <div class="table-responsive" style="max-height: 500px; overflow-y: auto; overflow-x: auto;">
-                    <table class="table table-dark table-striped table-hover table-bordered align-middle text-center table-cyber" style="font-size: 14px; min-width: 900px;">
+                    <table class="table table-dark table-striped table-hover table-bordered align-middle text-center table-cyber" style="font-size: 12px; min-width: 900px;">
                         <thead class="sticky-header">
                             <tr>
                                 <th>วันที่</th>
@@ -398,15 +398,46 @@
                     </table>
                 </div>
 
-                <div class="d-none d-print-block print-summary-area" style="text-align: right;">
-                    <div style="border-top: 1px solid #000000; padding-top: 10px;">
-                        <span>ยอดรวมสุทธิประจำเดือน: </span><span id="printTotalRevenue" style="font-weight: bold;">0</span><span> บาท</span>
-                    </div>
-                    <div>
-                        <span>ชำระเงินเรียบร้อยแล้ว: </span><span id="printTotalPaid" style="font-weight: bold;">0</span><span> บาท</span>
-                    </div>
-                    <div>
-                        <span>ยอดค้างชำระคงเหลือ: </span><span id="printTotalUnpaid" style="font-weight: bold; text-decoration: underline;">0</span><span> บาท</span>
+                <div class="d-none d-print-block print-summary-area">
+                    <div class="row" style="margin-top: 30px;">
+                        <!-- ซ้าย: ต้นทุนวัสดุ -->
+                        <div class="col-6" style="text-align: left;">
+                            <div style="font-weight: bold; font-size: 13pt; border-bottom: 1px solid #000; padding-bottom: 5px; margin-bottom: 8px;">รายการต้นทุนวัสดุ</div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 11pt;">
+                                <thead>
+                                    <tr>
+                                        <th style="border: 1px solid #666; padding: 4px 8px; background: #eaeaea;">รายการ</th>
+                                        <th style="border: 1px solid #666; padding: 4px 8px; background: #eaeaea; width: 60px; text-align:center;">จำนวน</th>
+                                        <th style="border: 1px solid #666; padding: 4px 8px; background: #eaeaea; width: 80px; text-align:right;">ราคา</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="printCostTableBody"></tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2" style="border: 1px solid #666; padding: 4px 8px; font-weight: bold; text-align: right;">ต้นทุนรวม:</td>
+                                        <td style="border: 1px solid #666; padding: 4px 8px; font-weight: bold; text-align: right;"><span id="printTotalCost">0</span> บาท</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <!-- ขวา: สรุปรายได้ -->
+                        <div class="col-6" style="text-align: right;">
+                            <div style="border-top: 1px solid #000000; padding-top: 10px;">
+                                <span>ยอดรวมสุทธิประจำเดือน: </span><span id="printTotalRevenue" style="font-weight: bold;">0</span><span> บาท</span>
+                            </div>
+                            <div>
+                                <span>ชำระเงินเรียบร้อยแล้ว: </span><span id="printTotalPaid" style="font-weight: bold;">0</span><span> บาท</span>
+                            </div>
+                            <div>
+                                <span>ยอดค้างชำระคงเหลือ: </span><span id="printTotalUnpaid" style="font-weight: bold; text-decoration: underline;">0</span><span> บาท</span>
+                            </div>
+                            <div style="margin-top: 10px; border-top: 1px solid #000; padding-top: 8px;">
+                                <span>ต้นทุนวัสดุรวม: </span><span id="printTotalCost2" style="font-weight: bold;">0</span><span> บาท</span>
+                            </div>
+                            <div style="font-size: 14pt;">
+                                <span>กำไรสุทธิ: </span><span id="printTotalProfit" style="font-weight: bold; text-decoration: underline;">0</span><span> บาท</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -415,10 +446,22 @@
                     <h4 class="mb-3">// บันทึกต้นทุนวัสดุ</h4>
 
                     <!-- ฟอร์มเพิ่มต้นทุน -->
-                    <div class="d-flex gap-2 mb-3">
-                        <input type="text" id="costName" class="form-control" placeholder="รายการที่ซื้อ เช่น ไวนิล 50 เมตร">
-                        <input type="number" id="costPrice" class="form-control" placeholder="ราคา (บาท)" style="max-width: 150px;">
-                        <button class="btn btn-cyber-primary px-3" onclick="addCost()" style="white-space: nowrap;">➕ เพิ่ม</button>
+                    <div class="row g-2 mb-3 align-items-end">
+                        <div class="col">
+                            <label class="form-label text-white mb-1" style="font-size:12px;">รายการที่ซื้อ</label>
+                            <input type="text" id="costName" class="form-control" placeholder="เช่น ไวนิล, หมึกพิมพ์">
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-label text-white mb-1" style="font-size:12px;">จำนวน</label>
+                            <input type="number" id="costQty" class="form-control" placeholder="จำนวน" style="width: 90px;" min="1" value="1">
+                        </div>
+                        <div class="col-auto">
+                            <label class="form-label text-white mb-1" style="font-size:12px;">ราคา (บาท)</label>
+                            <input type="number" id="costPrice" class="form-control" placeholder="บาท" style="width: 120px;">
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-cyber-primary px-3" onclick="addCost()" style="white-space: nowrap;">➕ เพิ่ม</button>
+                        </div>
                     </div>
 
                     <!-- ตารางต้นทุน -->
@@ -427,6 +470,7 @@
                             <thead class="sticky-header">
                                 <tr>
                                     <th>รายการ</th>
+                                    <th style="width: 80px;">จำนวน</th>
                                     <th style="width: 120px;">ราคา (บาท)</th>
                                     <th style="width: 60px;" class="no-print">ลบ</th>
                                 </tr>
@@ -690,13 +734,15 @@
 
     async function addCost() {
         const name = document.getElementById('costName').value.trim();
+        const qty = parseInt(document.getElementById('costQty').value) || 1;
         const price = parseFloat(document.getElementById('costPrice').value);
         if (!name || isNaN(price) || price <= 0) {
             alert('กรุณากรอกรายการและราคาให้ครบครับ');
             return;
         }
-        await apiRequest(`/costs/${currentMonth}`, 'POST', { name, price });
+        await apiRequest(`/costs/${currentMonth}`, 'POST', { name, qty, price });
         document.getElementById('costName').value = '';
+        document.getElementById('costQty').value = '1';
         document.getElementById('costPrice').value = '';
         loadCosts();
     }
@@ -710,26 +756,42 @@
 
     function renderCostTable() {
         const tbody = document.getElementById('costTableBody');
+        const printTbody = document.getElementById('printCostTableBody');
         tbody.innerHTML = '';
+        printTbody.innerHTML = '';
         let totalCost = 0;
 
         Object.keys(dbCosts).forEach(key => {
             const cost = dbCosts[key];
+            const qty = cost.qty || 1;
             totalCost += cost.price;
+
+            // หน้าจอปกติ
             tbody.insertAdjacentHTML('beforeend', `
                 <tr>
                     <td class="text-start text-white">${cost.name}</td>
+                    <td class="text-white">${qty}</td>
                     <td class="fw-bold text-danger">${cost.price.toLocaleString()} บ.</td>
                     <td class="no-print">
                         <button class="btn btn-sm btn-outline-danger py-0 px-1" style="font-size:11px;" onclick="deleteCost('${key}')">ลบ</button>
                     </td>
                 </tr>
             `);
+
+            // หน้า print
+            printTbody.insertAdjacentHTML('beforeend', `
+                <tr>
+                    <td style="border: 1px solid #666; padding: 4px 8px;">${cost.name}</td>
+                    <td style="border: 1px solid #666; padding: 4px 8px; text-align:center;">${qty}</td>
+                    <td style="border: 1px solid #666; padding: 4px 8px; text-align:right;">${cost.price.toLocaleString()} บาท</td>
+                </tr>
+            `);
         });
 
         document.getElementById('totalCost').innerText = totalCost.toLocaleString();
+        document.getElementById('printTotalCost').innerText = totalCost.toLocaleString();
+        document.getElementById('printTotalCost2').innerText = totalCost.toLocaleString();
 
-        // คำนวณกำไร
         const revenue = parseFloat(document.getElementById('totalRevenue').innerText.replace(/,/g, '')) || 0;
         updateProfit(revenue, totalCost);
     }
@@ -742,6 +804,7 @@
         document.getElementById('profitRevenue').innerText = revenue.toLocaleString();
         document.getElementById('totalProfit').innerText = profit.toLocaleString();
         document.getElementById('totalProfit').style.color = profit >= 0 ? '#39ff14' : '#ff0055';
+        document.getElementById('printTotalProfit').innerText = profit.toLocaleString();
     }
     // ===== จบระบบต้นทุน =====
 
